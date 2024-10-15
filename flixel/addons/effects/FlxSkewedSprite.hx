@@ -54,13 +54,10 @@ class FlxSkewedSprite extends FlxSprite
 
 		if (frameOffsetAngle != null && frameOffsetAngle != angle)
 		{
-			var angleOff = (frameOffsetAngle - angle) * FlxAngle.TO_RAD;
-			var cos = Math.cos(angleOff);
-			var sin = Math.sin(angleOff);
-			// cos doesnt need to be negated
-			_matrix.rotateWithTrig(cos, -sin);
+			var angleOff = (-angle + frameOffsetAngle) * FlxAngle.TO_RAD;
+			_matrix.rotate(-angleOff);
 			_matrix.translate(-frameOffset.x, -frameOffset.y);
-			_matrix.rotateWithTrig(cos, sin);
+			_matrix.rotate(angleOff);
 		}
 		else
 			_matrix.translate(-frameOffset.x, -frameOffset.y);

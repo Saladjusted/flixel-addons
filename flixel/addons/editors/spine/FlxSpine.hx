@@ -268,7 +268,7 @@ class FlxSpine extends FlxSprite
 				{
 					wrapper.x = 0;
 					wrapper.y = 0;
-					wrapper._cameras = _cameras;
+					wrapper.cameras = cameras;
 
 					#if (flash || openfl >= "4.0.0")
 					wrapper.vertices.length = verticesLength;

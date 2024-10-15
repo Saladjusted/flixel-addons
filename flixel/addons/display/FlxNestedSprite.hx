@@ -103,51 +103,7 @@ class FlxNestedSprite extends FlxSprite
 		if (children.contains(Child))
 			return Child;
 
-		if (children.length > 0 && children[children.length - 1] == null)
-		{
-			children[children.length - 1] = Child;
-		}
-		else
-		{
-			children.push(Child);
-		}
-		preAdd(Child);
-
-		return Child;
-	}
-
-	public function insert(position:Int, Child:FlxNestedSprite):FlxNestedSprite
-	{
-		if (Child == null)
-		{
-			FlxG.log.warn("Cannot insert a `null` object into a FlxNestedSprite.");
-			return null;
-		}
-
-		// Don't bother inserting an Child twice.
-		if (children.indexOf(Child) >= 0)
-			return Child;
-
-		// First, look if the member at position is null, so we can directly assign the Child at the position.
-		if (position < children.length && children[position] == null)
-		{
-			children[position] = Child;
-
-			preAdd(Child);
-
-			return Child;
-		}
-
-		// If we made it this far, we need to insert the Child into the group at the specified position.
-		children.insert(position, Child);
-
-		preAdd(Child);
-
-		return Child;
-	}
-
-	function preAdd(Child:FlxNestedSprite):Void
-	{
+		children.push(Child);
 		Child.velocity.set(0, 0);
 		Child.acceleration.set(0, 0);
 		Child.scrollFactor.copyFrom(scrollFactor);
@@ -157,6 +113,8 @@ class FlxNestedSprite extends FlxSprite
 		Child._parentGreen = color.greenFloat;
 		Child._parentBlue = color.blueFloat;
 		Child.color = Child.color;
+
+		return Child;
 	}
 
 	/**
@@ -165,22 +123,12 @@ class FlxNestedSprite extends FlxSprite
 	 * @param	Child	The FlxNestedSprite to remove.
 	 * @return	The removed FlxNestedSprite.
 	 */
-	public function remove(Child:FlxNestedSprite, Splice:Bool = true):FlxNestedSprite
+	public function remove(Child:FlxNestedSprite):FlxNestedSprite
 	{
-		if (children == null)
-			return null;
-
 		var index:Int = children.indexOf(Child);
 
-		if (index < 0)
-			return null;
-
-		if (Splice)
-		{
+		if (index >= 0)
 			children.splice(index, 1);
-		}
-		else
-			children[index] = null;
 
 		return Child;
 	}
@@ -190,20 +138,12 @@ class FlxNestedSprite extends FlxSprite
 	 *
 	 * @param	Index	Index to remove.
 	 */
-	public function removeAt(Index:Int = 0, Splice:Bool = true):FlxNestedSprite
+	public function removeAt(Index:Int = 0):FlxNestedSprite
 	{
 		if (children.length < Index || Index < 0)
 			return null;
 
-		var Child = children[Index];
-		if (Splice)
-		{
-			children.splice(Index, 1);
-		}
-		else
-			children[Index] = null;
-
-		return Child;
+		return remove(children[Index]);
 	}
 
 	/**
@@ -211,7 +151,8 @@ class FlxNestedSprite extends FlxSprite
 	 */
 	public function removeAll():Void
 	{
-		children.clearArray();
+		for (child in children)
+			remove(child);
 	}
 
 	public function preUpdate(elapsed:Float):Void
@@ -224,7 +165,7 @@ class FlxNestedSprite extends FlxSprite
 
 		for (child in children)
 		{
-			if (child != null && child.exists && child.active)
+			if (child.active && child.exists)
 				child.preUpdate(elapsed);
 		}
 	}
@@ -235,7 +176,7 @@ class FlxNestedSprite extends FlxSprite
 
 		for (child in children)
 		{
-			if (child != null && child.exists && child.active)
+			if (child.active && child.exists)
 				child.update(elapsed);
 		}
 
@@ -274,16 +215,14 @@ class FlxNestedSprite extends FlxSprite
 
 		for (child in children)
 		{
-			if (child != null && child.exists && child.active)
+			if (child.active && child.exists)
 			{
 				child.velocity.x = child.velocity.y = 0;
 				child.acceleration.x = child.acceleration.y = 0;
 				child.angularVelocity = child.angularAcceleration = 0;
 				child.postUpdate(elapsed);
 
-				var simpleRender = (child.angle == 0 || child.bakedRotationAngle > 0) && child.scale.x == 1 && child.scale.y == 1;
-
-				if (simpleRender)
+				if (isSimpleRender(camera))
 				{
 					child.x = x + child.relativeX - offset.x;
 					child.y = y + child.relativeY - offset.y;
@@ -320,12 +259,11 @@ class FlxNestedSprite extends FlxSprite
 
 	override public function draw():Void
 	{
-		if (_frame != null)
-			super.draw();
+		super.draw();
 
 		for (child in children)
 		{
-			if (child != null && child.exists && child.visible)
+			if (child.exists && child.visible)
 				child.draw();
 		}
 	}
@@ -337,7 +275,7 @@ class FlxNestedSprite extends FlxSprite
 
 		for (child in children)
 		{
-			if (child != null && child.exists && child.visible)
+			if (child.exists && child.visible)
 				child.drawDebug();
 		}
 	}
@@ -386,8 +324,7 @@ class FlxNestedSprite extends FlxSprite
 		if (children != null)
 		{
 			for (child in children)
-				if (child != null)
-					child.alpha = alpha;
+				child.alpha = alpha;
 		}
 
 		return alpha;
@@ -445,9 +382,6 @@ class FlxNestedSprite extends FlxSprite
 
 		for (child in children)
 		{
-			if (child == null)
-				continue;
-
 			var childColor:Int = child.color;
 
 			var childRed:Float = (childColor >> 16) / (255 * child._parentRed);
@@ -473,7 +407,7 @@ class FlxNestedSprite extends FlxSprite
 		{
 			for (child in children)
 			{
-				if (child != null && child.exists && child.active)
+				if (child.exists && child.active)
 					child.facing = Direction;
 			}
 		}

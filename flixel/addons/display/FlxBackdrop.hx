@@ -30,7 +30,7 @@ class FlxBackdrop extends FlxSprite
 	/**
 	 * The gap between repeated tiles, defaults to (0, 0), or no gap.
 	 */
-	public var spacing(default, null):FlxPoint = FlxPoint.get();
+	public var spacing(default, null):FlxPoint = new FlxPoint();
 
 	/**
 	 * If true, tiles are pre-rendered to a intermediary bitmap whenever `loadGraphic` is called
@@ -81,8 +81,8 @@ class FlxBackdrop extends FlxSprite
 
 	override function destroy():Void
 	{
-		spacing = FlxDestroyUtil.put(spacing);
-		_blitOffset = FlxDestroyUtil.put(_blitOffset);
+		spacing = FlxDestroyUtil.destroy(spacing);
+		_blitOffset = FlxDestroyUtil.destroy(_blitOffset);
 		_blitGraphic = FlxDestroyUtil.destroy(_blitGraphic);
 
 		super.destroy();
